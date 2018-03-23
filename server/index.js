@@ -5,9 +5,11 @@ const morgan = require('morgan');
 const app = express();
 const router = require('./router');
 const mongoose = require('mongoose');
+const cors = require('cors');
 // App setup
 // MORGAN IS A LOGING LIBRARY
 app.use(morgan('combined'));
+app.use(cors());
 // BODYPARSER.JSON PARSE ALL THE INCOMING REQUEST AS JSON
 app.use(bodyParser.json({type: '*/*'}));
 router(app);
