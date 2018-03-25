@@ -4,6 +4,21 @@ import * as actions from '../../actions';
 import { connect } from 'react-redux';
 
 class Signup extends Component {
+    handleForSubmit(values){
+        // call action creator to sign up the user!
+        this.props.signupUser(values, () => {
+            this.props.history.push('/feature');
+        });
+    }
+    renderAlert(){
+        if(this.props.errorMessage){
+            return(
+                <div className="alert alert-danger">
+                    <strong>Oops! </strong> {this.props.errorMessage}
+                </div>
+            );
+        }
+    }
     renderTextField(field){
         const {meta: { touched, error }} = field;
         const className = `form-control ${touched && error ? 'is-invalid' : ''}`;
@@ -12,7 +27,7 @@ class Signup extends Component {
             <div className="form-group">
                 <label htmlFor="">{field.label}</label>
                 <input 
-                    type={field.label === 'Password' || 'Confirm Password' ? 'password' : 'text' }
+                    type={(field.label === 'Password') || (field.label === 'Confirm Password') ? 'password' : 'text' }
                     className={className}
                     {...field.input}/>
                 < div className="text-help invalid-feedback" >
@@ -27,7 +42,7 @@ class Signup extends Component {
         const { handleSubmit } = this.props;
         return(
             <div className="container">
-                <form action="">
+                <form action="" onSubmit={handleSubmit(this.handleForSubmit.bind(this))}>
                     <Field
                         label="Email"
                         name="email"
@@ -43,6 +58,7 @@ class Signup extends Component {
                         name="confirmPassword"
                         component={this.renderTextField}
                     />
+                    {this.renderAlert()}
                     <button className="btn btn-success">Sign up</button>
                 </form>
             </div>
@@ -52,19 +68,28 @@ class Signup extends Component {
 
 function validate(values){
     const errors = {};
-    console.log(values);
     if(!values.email){
         errors.email = "Enter a valid email";
     }
-    if(values.confirPassword !== values.password){
-        errors.confirmPassword = 'Passwords must match';
+    if(!values.password){
+        errors.password = "Enter a password";
+    }
+    if(!values.confirmPassword){
+        errors.confirmPassword = "Enter a password confirmation";
+    }
+    if (values.password !== values.confirmPassword){
+        errors.password = 'Passwords must match';
     }
     return errors;
+}
+
+function mapStateToProps(state){
+    return { errorMessage: state.auth.error }
 }
 
 export default reduxForm({
     validate,
     form: 'signup'
 })(
-    connect(null, actions)(Signup)
+    connect(mapStateToProps, actions)(Signup)
 );
